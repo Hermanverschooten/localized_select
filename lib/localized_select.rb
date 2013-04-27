@@ -43,7 +43,7 @@ module ActionView
       # TODO : Implement pseudo-named args with a hash, not the "somebody said PHP?" multiple args sillines
       def localized_select(object, method, localized_entries, priority_entries = nil, options = {}, html_options = {})
         InstanceTag.new(object, method, self, options.delete(:object)).
-          to_localized_select_tag(localized_entries, priority_entries, options, html_options)
+          to_localized_select_tag(localized_entries, priority_entries, options, html_options).html_safe
       end
 
       # Return "named" select and option tags according to given arguments.
@@ -51,7 +51,7 @@ module ActionView
       # It behaves likes older object-binded brother +localized__select+ otherwise
       # TODO : Implement pseudo-named args with a hash, not the "somebody said PHP?" multiple args sillines
       def localized_select_tag(name, localized_entries, selected_value = nil, priority_entries = nil, html_options = {})
-        select_tag name.to_sym, localized_options_for_select(localized_entries, selected_value, priority_entries), html_options.stringify_keys
+        select_tag(name.to_sym, localized_options_for_select(localized_entries, selected_value, priority_entries), html_options.stringify_keys).html_safe
       end
 
       # Returns a string of option tags according to locale. Supply the code in upper-case
@@ -63,7 +63,7 @@ module ActionView
           entry_options += options_for_select(LocalizedSelect::priority_entries_array(localized_entries, priority_entries), selected)
           entry_options += "<option value=\"\" disabled=\"disabled\">-------------</option>\n"
         end
-        return entry_options + options_for_select(LocalizedSelect::localized_entries_array(localized_entries), selected)
+        return (entry_options + options_for_select(LocalizedSelect::localized_entries_array(localized_entries), selected)).html_safe
       end
       
     end
@@ -78,7 +78,7 @@ module ActionView
             localized_options_for_select(localized_entries, value, priority_entries),
             options, value
           ), html_options
-        )
+        ).html_safe
       end
     end
     

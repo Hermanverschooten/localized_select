@@ -6,4 +6,4 @@ gemspec
 gem 'rake'
 gem 'rdoc'
 gem 'activesupport'
-gem 'actionpack'
+gem 'actionpack', '~>3.2'
