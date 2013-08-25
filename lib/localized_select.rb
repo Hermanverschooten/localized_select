@@ -42,8 +42,12 @@ module ActionView
       #  codes listed as an array of symbols in +priority_countries+ argument will be listed first
       # TODO : Implement pseudo-named args with a hash, not the "somebody said PHP?" multiple args sillines
       def localized_select(object, method, localized_entries, priority_entries = nil, options = {}, html_options = {})
-        InstanceTag.new(object, method, self, options.delete(:object)).
-          to_localized_select_tag(localized_entries, priority_entries, options, html_options).html_safe
+        tag = if defined?(ActionView::Helpers::InstanceTag) && ActionView::Helpers::InstanceTag.instance_method(:initialize).arity != 0
+                InstanceTag.new(object, method, self, options.delete(:object))
+              else
+                Select.new(object, method, self, options)
+              end
+          tag.to_localized_select_tag(localized_entries, priority_entries, options, html_options).html_safe
       end
 
       # Return "named" select and option tags according to given arguments.
@@ -68,7 +72,7 @@ module ActionView
       
     end
 
-    class InstanceTag
+    module ToLocalizedSelect
       def to_localized_select_tag(localized_entries,priority_entries, options, html_options)
         html_options = html_options.stringify_keys
         add_default_name_and_id(html_options)
@@ -81,12 +85,21 @@ module ActionView
         ).html_safe
       end
     end
+
+    if defined?(ActionView::Helpers::InstanceTag) && ActionView::Helpers::InstanceTag.instance_method(:initialize).arity != 0
+      class InstanceTag
+        include ToLocalizedSelect
+      end
+    else
+      class Select < Tags::Base
+        include ToLocalizedSelect
+      end
+    end
     
     class FormBuilder
       def localized_select(method,localized_entries, priority_entries = nil, options = {}, html_options = {})
         @template.localized_select(@object_name, method,localized_entries, priority_entries, options.merge(:object => @object), html_options)
       end
     end
-
   end
 end
